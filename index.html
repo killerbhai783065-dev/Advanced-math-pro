@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Math Master Ultra Pro – Stable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
+        body {
+            background: #eef2f7;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        body.dark {
+            background: #121826;
+        }
+        .app {
+            max-width: 750px;
+            width: 100%;
+            background: white;
+            border-radius: 48px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        body.dark .app {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        .header {
+            background: #1e3a5f;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        .header h1 {
+            color: white;
+            font-size: 1.5rem;
+        }
+        .settings-icon {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+        .content {
+            padding: 24px;
+            min-height: 500px;
+        }
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .module-card, .level-btn, .combo-option {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 32px;
+            padding: 14px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+        }
+        body.dark .module-card, body.dark .level-btn, body.dark .combo-option {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #cbd5e6;
+        }
+        .module-card:active, .level-btn:active, .combo-option:active {
+            transform: scale(0.97);
+            background: #e2e8f0;
+        }
+        .level-btn.locked {
+            opacity: 0.5;
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+        .back-btn {
+            background: #eef2f7;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        body.dark .back-btn {
+            background: #3a4a5a;
+            color: #eee;
+        }
+        .quiz-panel {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 20px;
+        }
+        body.dark .quiz-panel {
+            background: #2d3748;
+        }
+        .question {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            background: white;
+            padding: 24px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            word-break: break-word;
+        }
+        body.dark .question {
+            background: #0f172a;
+            color: #fbbf24;
+        }
+        .answer-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.3rem;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 60px;
+            background: white;
+        }
+        .answer-input.wrong {
+            border-color: #e53e3e;
+            background: #fff5f5;
+        }
+        .mcq-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .mcq-btn {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 40px;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        body.dark .mcq-btn {
+            background: #3a4a5a;
+            color: white;
+        }
+        .mcq-btn:active {
+            transform: scale(0.97);
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 60px;
+            margin: 16px 0;
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+        body.dark .info-bar {
+            background: #1e293b;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .btn-group button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .end-btn {
+            background: #e67e22;
+            color: white;
+        }
+        .menu-btn {
+            background: #eef2f7;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 24px;
+            width: 85%;
+            max-width: 360px;
+        }
+        body.dark .modal-card {
+            background: #2d3748;
+        }
+        .modal-card select, .modal-card button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 40px;
+            border: none;
+        }
+        hr { margin: 12px 0; }
+        .timer {
+            font-weight: bold;
+            color: #e67e22;
+        }
+        .section-title {
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            padding-left: 8px;
+            border-left: 4px solid #e67e22;
+        }
+        /* Disable clicks during transition */
+        .no-click {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+    (function(){
+        // ----- LEVEL DEFINITIONS -----
+        const DIGIT_COMBOS = ["1x1","2x1","3x1","2x2","3x2","3x3","4x4","5x5","6x6","7x7"];
+        const MULTI_FIXED = [];
+        for(let d=1; d<=5; d++){
+            for(let t=3; t<=7; t++){
+                MULTI_FIXED.push(`${d}-digit ${t}-term`);
+            }
+        }
+        const MULTI_MIX = ["1-digit (3-7 terms mix)", "2-digit (3-7 terms mix)", "3-digit (3-7 terms mix)", "4-digit (3-7 terms mix)", "5-digit (3-7 terms mix)"];
+        
+        const SQUARE_LEVELS = ["1-digit","2-digit","3-digit","4-digit","Advanced Mix"];
+        const CUBE_LEVELS = ["1-digit","2-digit","3-digit","4-digit","Advanced Mix"];
+        const SQRT_LEVELS = ["Beginner","Intermediate","Advanced"];
+        const CB_ROOT_LEVELS = ["Beginner","Intermediate","Advanced"];
+        const TABLES_LEVELS = [];
+        for(let i=1; i<=100; i+=5) TABLES_LEVELS.push(`${i}-${i+4}`);
+        for(let i=1; i<=100; i+=10) TABLES_LEVELS.push(`${i}-${i+9}`);
+        TABLES_LEVELS.push("1-100 Ultimate Mix");
+        
+        const BASIC_CATS = ["Addition","Subtraction","Multiplication","Division"];
+        const OTHER_CATS = ["Square","Cube","Square Root","Cube Root","Tables"];
+        const COMBO_MODES = ["Add + Sub Combo","Add + Sub + Mul Combo","ASMD All Combo","ASMD Master"];
+        
+        let currentPage = "home";
+        let currentCategory = null;
+        let currentLevelName = null;
+        let session = {
+            startTime: null,
+            total: 0,
+            correct: 0,
+            questionStart: null,
+            timerInterval: null,
+            questionLimit: null,
+            category: null,
+            levelName: null,
+        };
+        let currentQuestion = null;
+        let currentAnswer = null;
+        let settings = { darkMode: false, questionLimit: "Unlimited", inputMode: "Typing" };
+        let history = [];
+        let streak = { lastDate: null, count: 0 };
+        let progressData = {};
+        let pendingAnswer = false;  // to prevent double submission
+
+        // Helper functions
+        function getLevelStats(cat, levelName){
+            let key = `${cat}|${levelName}`;
+            if(!progressData[key]) progressData[key] = { correct: 0, total: 0, unlocked: false };
+            return progressData[key];
+        }
+        function updateLevelStats(cat, levelName, correct){
+            let stats = getLevelStats(cat, levelName);
+            stats.total++;
+            if(correct) stats.correct++;
+            saveAll();
+            return stats;
+        }
+        function checkAndUnlockNext(cat, currentLevelName){
+            let levels = getAllLevelsForCategory(cat);
+            let idx = levels.indexOf(currentLevelName);
+            if(idx === -1 || idx === levels.length-1) return;
+            let stats = getLevelStats(cat, currentLevelName);
+            let acc = stats.total ? (stats.correct/stats.total)*100 : 0;
+            if(acc >= 95 && stats.correct >= 25){
+                let nextLevel = levels[idx+1];
+                let nextKey = `${cat}|${nextLevel}`;
+                if(!progressData[nextKey]) progressData[nextKey] = { correct:0, total:0, unlocked:false };
+                progressData[nextKey].unlocked = true;
+                saveAll();
+            }
+        }
+        
+        function getAllLevelsForCategory(cat){
+            if(BASIC_CATS.includes(cat) || cat.startsWith("Combo:")){
+                return [...DIGIT_COMBOS, ...MULTI_FIXED, ...MULTI_MIX];
+            } else if(cat === "Square") return SQUARE_LEVELS;
+            else if(cat === "Cube") return CUBE_LEVELS;
+            else if(cat === "Square Root") return SQRT_LEVELS;
+            else if(cat === "Cube Root") return CB_ROOT_LEVELS;
+            else if(cat === "Tables") return TABLES_LEVELS;
+            return [];
+        }
+        
+        function generateQuestion(cat, levelName){
+            if(BASIC_CATS.includes(cat) || cat.startsWith("Combo:")){
+                let ops = [];
+                if(cat === "Addition") ops = ["+"];
+                else if(cat === "Subtraction") ops = ["-"];
+                else if(cat === "Multiplication") ops = ["×"];
+                else if(cat === "Division") ops = ["÷"];
+                else if(cat === "Combo:Add + Sub Combo") ops = ["+","-"];
+                else if(cat === "Combo:Add + Sub + Mul Combo") ops = ["+","-","×"];
+                else if(cat === "Combo:ASMD All Combo") ops = ["+","-","×","÷"];
+                else if(cat === "Combo:ASMD Master"){
+                    let subModes = ["Combo:Add + Sub Combo","Combo:Add + Sub + Mul Combo","Combo:ASMD All Combo"];
+                    let randMode = subModes[Math.floor(Math.random()*3)];
+                    return generateQuestion(randMode, levelName);
+                }
+                if(levelName.includes("x")){
+                    let [da, db] = levelName.split("x").map(Number);
+                    let minA = da===1?0:Math.pow(10,da-1);
+                    let maxA = Math.pow(10,da)-1;
+                    let minB = db===1?0:Math.pow(10,db-1);
+                    let maxB = Math.pow(10,db)-1;
+                    let a = Math.floor(Math.random()*(maxA-minA+1))+minA;
+                    let b = Math.floor(Math.random()*(maxB-minB+1))+minB;
+                    if(cat === "Subtraction" || ops.includes("-")){
+                        let op = ops.includes("-") ? ops[Math.floor(Math.random()*ops.length)] : "-";
+                        if(op === "-") return { text: `${a} - ${b}`, ans: a-b };
+                    }
+                    if(cat === "Division" || ops.includes("÷")){
+                        if(b===0) b=1;
+                        let q = Math.floor(Math.random()*200)+1;
+                        a = b*q;
+                        while(a>maxA && da<7){ q=Math.floor(Math.random()*100)+1; a=b*q; }
+                        if(a>maxA) a = b * Math.floor(Math.random()*Math.floor(maxA/b));
+                        return { text: `${a} ÷ ${b}`, ans: a/b };
+                    }
+                    let op = ops[Math.floor(Math.random()*ops.length)];
+                    if(op === "+") return { text: `${a} + ${b}`, ans: a+b };
+                    if(op === "-") return { text: `${a} - ${b}`, ans: a-b };
+                    if(op === "×") return { text: `${a} × ${b}`, ans: a*b };
+                } else if(levelName.includes("digit") && levelName.includes("term")){
+                    let parts = levelName.split(" ");
+                    let digit = parseInt(parts[0]);
+                    let isMix = levelName.includes("mix");
+                    let terms = isMix ? Math.floor(Math.random()*5)+3 : parseInt(parts[2]);
+                    let minVal = digit===1?0:Math.pow(10,digit-1);
+                    let maxVal = Math.pow(10,digit)-1;
+                    let nums = [];
+                    for(let i=0;i<terms;i++) nums.push(Math.floor(Math.random()*(maxVal-minVal+1))+minVal);
+                    let op = ops[Math.floor(Math.random()*ops.length)];
+                    if(op === "+") return { text: nums.join(" + "), ans: nums.reduce((s,v)=>s+v,0) };
+                    if(op === "-"){
+                        let res = nums[0];
+                        for(let i=1;i<nums.length;i++) res -= nums[i];
+                        return { text: nums.join(" - "), ans: res };
+                    }
+                    if(op === "×") return { text: nums.join(" × "), ans: nums.reduce((p,v)=>p*v,1) };
+                    if(op === "÷"){
+                        let val = nums[0];
+                        for(let i=1;i<nums.length;i++) if(nums[i]!==0) val /= nums[i];
+                        return { text: nums.join(" ÷ "), ans: Math.floor(val) };
+                    }
+                }
+            } else if(cat === "Square"){
+                if(levelName === "1-digit"){ let n=Math.floor(Math.random()*9)+1; return { text: `${n}²`, ans: n*n }; }
+                if(levelName === "2-digit"){ let n=Math.floor(Math.random()*90)+10; return { text: `${n}²`, ans: n*n }; }
+                if(levelName === "3-digit"){ let n=Math.floor(Math.random()*900)+100; return { text: `${n}²`, ans: n*n }; }
+                if(levelName === "4-digit"){ let n=Math.floor(Math.random()*9000)+1000; return { text: `${n}²`, ans: n*n }; }
+                if(levelName === "Advanced Mix"){
+                    let digits = Math.floor(Math.random()*4)+1;
+                    let min = digits===1?1:Math.pow(10,digits-1);
+                    let max = digits===1?9:Math.pow(10,digits)-1;
+                    let n = Math.floor(Math.random()*(max-min+1))+min;
+                    return { text: `${n}²`, ans: n*n };
+                }
+            } else if(cat === "Cube"){
+                if(levelName === "1-digit"){ let n=Math.floor(Math.random()*9)+1; return { text: `${n}³`, ans: n*n*n }; }
+                if(levelName === "2-digit"){ let n=Math.floor(Math.random()*90)+10; return { text: `${n}³`, ans: n*n*n }; }
+                if(levelName === "3-digit"){ let n=Math.floor(Math.random()*900)+100; return { text: `${n}³`, ans: n*n*n }; }
+                if(levelName === "4-digit"){ let n=Math.floor(Math.random()*9000)+1000; return { text: `${n}³`, ans: n*n*n }; }
+                if(levelName === "Advanced Mix"){
+                    let digits = Math.floor(Math.random()*4)+1;
+                    let min = digits===1?1:Math.pow(10,digits-1);
+                    let max = digits===1?9:Math.pow(10,digits)-1;
+                    let n = Math.floor(Math.random()*(max-min+1))+min;
+                    return { text: `${n}³`, ans: n*n*n };
+                }
+            } else if(cat === "Square Root"){
+                let base = 0;
+                if(levelName === "Beginner") base = Math.floor(Math.random()*15)+1;
+                else if(levelName === "Intermediate") base = Math.floor(Math.random()*40)+16;
+                else base = Math.floor(Math.random()*100)+41;
+                return { text: `√${base*base}`, ans: base };
+            } else if(cat === "Cube Root"){
+                let base = 0;
+                if(levelName === "Beginner") base = Math.floor(Math.random()*12)+1;
+                else if(levelName === "Intermediate") base = Math.floor(Math.random()*25)+13;
+                else base = Math.floor(Math.random()*50)+26;
+                return { text: `∛${base*base*base}`, ans: base };
+            } else if(cat === "Tables"){
+                let range = levelName.split("-");
+                let minTable = parseInt(range[0]);
+                let maxTable = parseInt(range[1]);
+                let table = Math.floor(Math.random()*(maxTable-minTable+1))+minTable;
+                let mul = Math.floor(Math.random()*10)+1;
+                return { text: `${table} × ${mul}`, ans: table*mul };
+            }
+            return { text: "1+1", ans: 2 };
+        }
+        
+        function isAnswerCorrect(userNum, correctAns){
+            if(Math.abs(userNum - correctAns) < 1e-6) return true;
+            if(correctAns < 0 && Math.abs(userNum) === Math.abs(correctAns)) return true;
+            return false;
+        }
+        
+        function saveAll(){
+            localStorage.setItem("mathMasterUltraFinal", JSON.stringify({ progressData, history, streak, settings }));
+        }
+        function loadAll(){
+            let d = localStorage.getItem("mathMasterUltraFinal");
+            if(d){
+                let obj = JSON.parse(d);
+                progressData = obj.progressData || {};
+                history = obj.history || [];
+                streak = obj.streak || { lastDate: null, count: 0 };
+                settings = obj.settings || settings;
+                if(settings.darkMode) document.body.classList.add("dark");
+            }
+            updateStreak();
+        }
+        function updateStreak(){
+            let today = new Date().toDateString();
+            if(streak.lastDate !== today){
+                let yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+                if(streak.lastDate === yesterday.toDateString()) streak.count++;
+                else streak.count = 1;
+                streak.lastDate = today;
+                saveAll();
+            }
+        }
+        
+        function ensureFirstLevelUnlocked(cat){
+            let levels = getAllLevelsForCategory(cat);
+            if(levels.length){
+                let firstKey = `${cat}|${levels[0]}`;
+                if(!progressData[firstKey]) progressData[firstKey] = { correct:0, total:0, unlocked:true };
+                else progressData[firstKey].unlocked = true;
+                saveAll();
+            }
+        }
+        
+        function startPractice(cat, levelName){
+            ensureFirstLevelUnlocked(cat);
+            currentCategory = cat;
+            currentLevelName = levelName;
+            currentPage = "quiz";
+            session = {
+                startTime: Date.now(),
+                total: 0,
+                correct: 0,
+                questionStart: null,
+                timerInterval: null,
+                questionLimit: settings.questionLimit === "Unlimited" ? Infinity : parseInt(settings.questionLimit),
+                category: cat,
+                levelName: levelName,
+            };
+            pendingAnswer = false;
+            nextQuestion();
+            render();
+            startTimer();
+        }
+        
+        function nextQuestion(){
+            if(session.total >= session.questionLimit){
+                endSession();
+                return;
+            }
+            let q = generateQuestion(currentCategory, currentLevelName);
+            currentQuestion = q.text;
+            currentAnswer = q.ans;
+            session.questionStart = Date.now();
+            renderQuiz();
+        }
+        
+        function submitAnswer(val){
+            if(pendingAnswer) return false;
+            let num = parseFloat(val);
+            if(isNaN(num)) return false;
+            let correct = isAnswerCorrect(num, currentAnswer);
+            if(!correct) return false;
+            pendingAnswer = true;
+            session.total++;
+            session.correct++;
+            updateLevelStats(currentCategory, currentLevelName, true);
+            checkAndUnlockNext(currentCategory, currentLevelName);
+            // short delay to prevent double click
+            setTimeout(() => {
+                nextQuestion();
+                pendingAnswer = false;
+            }, 50);
+            return true;
+        }
+        
+        function endSession(){
+            if(session.timerInterval) clearInterval(session.timerInterval);
+            let totalTime = (Date.now() - session.startTime)/1000;
+            let accuracy = session.total ? (session.correct/session.total*100) : 0;
+            history.unshift({
+                date: new Date().toLocaleString(),
+                category: currentCategory,
+                level: currentLevelName,
+                accuracy: accuracy.toFixed(1),
+                totalTime: totalTime.toFixed(1),
+                qCount: session.total
+            });
+            if(history.length > 20) history.pop();
+            saveAll();
+            currentPage = "levels";
+            render();
+        }
+        
+        function startTimer(){
+            if(session.timerInterval) clearInterval(session.timerInterval);
+            session.timerInterval = setInterval(() => {
+                if(session.questionStart){
+                    let elapsed = Math.floor((Date.now() - session.questionStart)/1000);
+                    let timerSpan = document.getElementById("timerDisplay");
+                    if(timerSpan) timerSpan.innerText = `⏱️ ${elapsed}s`;
+                }
+            }, 100);
+        }
+        
+        function generateDistractors(correct, questionText){
+            let dists = new Set();
+            dists.add(correct);
+            let range = Math.max(1, Math.abs(correct) * 0.5);
+            while(dists.size < 4){
+                let offset = Math.floor(Math.random() * (range * 2 + 1)) - range;
+                let candidate = correct + offset;
+                if(candidate !== correct && Math.abs(candidate) < 10000) dists.add(candidate);
+            }
+            let options = Array.from(dists);
+            for(let i=options.length-1;i>0;i--){
+                let j = Math.floor(Math.random()*(i+1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+            return options;
+        }
+        
+        function renderQuiz(){
+            let contentDiv = document.getElementById("mainContent");
+            let acc = session.total ? ((session.correct/session.total)*100).toFixed(1) : 0;
+            let mode = settings.inputMode;
+            let isTyping = (mode === "Typing");
+            
+            if(isTyping){
+                contentDiv.innerHTML = `
+                    <button class="back-btn" id="backHome">← Back</button>
+                    <div class="quiz-panel">
+                        <div class="question">${currentQuestion}</div>
+                        <input type="number" id="answerInput" class="answer-input" placeholder="Your answer" step="any" autocomplete="off" autofocus>
+                        <div class="info-bar">
+                            <span>✅ ${session.correct}</span>
+                            <span>📊 ${session.total}</span>
+                            <span>🎯 ${acc}%</span>
+                            <span id="timerDisplay" class="timer">⏱️ 0s</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="end-btn" id="endBtn">🏁 End Session</button>
+                            <button class="menu-btn" id="menuBtn">← Menu</button>
+                        </div>
+                    </div>
+                `;
+                let input = document.getElementById("answerInput");
+                if(input){
+                    input.oninput = (e) => {
+                        if(pendingAnswer) return;
+                        let val = e.target.value;
+                        let num = parseFloat(val);
+                        let correct = !isNaN(num) && isAnswerCorrect(num, currentAnswer);
+                        if(correct){
+                            submitAnswer(val);
+                            e.target.value = "";
+                            e.target.classList.remove("wrong");
+                            // keep focus
+                            setTimeout(() => { if(input) input.focus(); }, 20);
+                        } else if(val !== ""){
+                            e.target.classList.add("wrong");
+                        } else {
+                            e.target.classList.remove("wrong");
+                        }
+                    };
+                    setTimeout(() => input.focus(), 50);
+                }
+            } else {
+                let options = generateDistractors(currentAnswer, currentQuestion);
+                let optsHtml = `<div class="mcq-options">`;
+                for(let opt of options){
+                    optsHtml += `<button class="mcq-btn" data-value="${opt}">${opt}</button>`;
+                }
+                optsHtml += `</div>`;
+                contentDiv.innerHTML = `
+                    <button class="back-btn" id="backHome">← Back</button>
+                    <div class="quiz-panel">
+                        <div class="question">${currentQuestion}</div>
+                        <div class="info-bar">
+                            <span>✅ ${session.correct}</span>
+                            <span>📊 ${session.total}</span>
+                            <span>🎯 ${acc}%</span>
+                            <span id="timerDisplay" class="timer">⏱️ 0s</span>
+                        </div>
+                        ${optsHtml}
+                        <div class="btn-group">
+                            <button class="end-btn" id="endBtn">🏁 End Session</button>
+                            <button class="menu-btn" id="menuBtn">← Menu</button>
+                        </div>
+                    </div>
+                `;
+                document.querySelectorAll(".mcq-btn").forEach(btn => {
+                    btn.onclick = (e) => {
+                        if(pendingAnswer) return;
+                        let val = parseFloat(btn.getAttribute("data-value"));
+                        if(isAnswerCorrect(val, currentAnswer)){
+                            btn.style.backgroundColor = "#4caf50";
+                            submitAnswer(val);
+                        } else {
+                            btn.style.backgroundColor = "#e53e3e";
+                            setTimeout(() => {
+                                btn.style.backgroundColor = "";
+                            }, 500);
+                        }
+                    };
+                });
+            }
+            document.getElementById("backHome").onclick = () => {
+                if(session.timerInterval) clearInterval(session.timerInterval);
+                currentPage = "levels";
+                render();
+            };
+            document.getElementById("endBtn").onclick = () => endSession();
+            document.getElementById("menuBtn").onclick = () => endSession();
+            session.questionStart = Date.now();
+        }
+        
+        function render(){
+            let root = document.getElementById("root");
+            root.innerHTML = `
+                <div class="app">
+                    <div class="header">
+                        <h1>🧮 Math Master Ultra Pro</h1>
+                        <button class="settings-icon" id="settingsBtn">⚙️</button>
+                    </div>
+                    <div class="content" id="mainContent"></div>
+                </div>
+                <div id="modal" class="modal">
+                    <div class="modal-card">
+                        <h3>Settings</h3>
+                        <label>🌙 Dark Mode</label><input type="checkbox" id="darkToggle">
+                        <label>📊 Question Limit</label><select id="limitSelect"><option>Unlimited</option><option>50</option><option>100</option><option>200</option><option>400</option><option>800</option><option>1600</option></select>
+                        <label>🎮 Input Mode</label><select id="inputModeSelect"><option>Typing</option><option>MCQ</option></select>
+                        <button id="saveSettings">Save</button>
+                        <button id="closeModal">Close</button>
+                        <hr>
+                        <button id="clearProgress">🗑️ Clear Progress</button>
+                        <button id="viewHistory">📜 History</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById("settingsBtn").onclick = () => document.getElementById("modal").style.display = "flex";
+            document.getElementById("closeModal").onclick = () => document.getElementById("modal").style.display = "none";
+            document.getElementById("saveSettings").onclick = () => {
+                settings.darkMode = document.getElementById("darkToggle").checked;
+                settings.questionLimit = document.getElementById("limitSelect").value;
+                settings.inputMode = document.getElementById("inputModeSelect").value;
+                if(settings.darkMode) document.body.classList.add("dark");
+                else document.body.classList.remove("dark");
+                saveAll();
+                document.getElementById("modal").style.display = "none";
+                render();
+            };
+            document.getElementById("darkToggle").checked = settings.darkMode;
+            document.getElementById("limitSelect").value = settings.questionLimit;
+            document.getElementById("inputModeSelect").value = settings.inputMode;
+            document.getElementById("clearProgress").onclick = () => {
+                if(confirm("Reset all progress?")){
+                    localStorage.removeItem("mathMasterUltraFinal");
+                    location.reload();
+                }
+            };
+            document.getElementById("viewHistory").onclick = () => {
+                let msg = history.map(h => `${h.date}\n${h.category} - ${h.level}\nAcc: ${h.accuracy}% (${h.qCount} Q, ${h.totalTime}s)`).join("\n\n");
+                alert(msg || "No history yet");
+                document.getElementById("modal").style.display = "none";
+            };
+            
+            let contentDiv = document.getElementById("mainContent");
+            if(currentPage === "home"){
+                let allCategories = [...BASIC_CATS, ...OTHER_CATS, "Combos"];
+                contentDiv.innerHTML = `<div class="grid-2col">${allCategories.map(c => `<div class="module-card" data-cat="${c}">${c}</div>`).join('')}</div>`;
+                document.querySelectorAll("[data-cat]").forEach(btn => {
+                    btn.onclick = () => {
+                        let cat = btn.getAttribute("data-cat");
+                        if(cat === "Combos"){
+                            contentDiv.innerHTML = `<button class="back-btn" id="backHome">← Back</button>
+                                <div class="grid-2col">${COMBO_MODES.map(m => `<div class="combo-option" data-combo="${m}">${m}</div>`).join('')}</div>`;
+                            document.getElementById("backHome").onclick = () => { currentPage = "home"; render(); };
+                            document.querySelectorAll("[data-combo]").forEach(opt => {
+                                opt.onclick = () => {
+                                    let comboName = opt.getAttribute("data-combo");
+                                    currentCategory = `Combo:${comboName}`;
+                                    ensureFirstLevelUnlocked(currentCategory);
+                                    currentPage = "levels";
+                                    render();
+                                };
+                            });
+                        } else {
+                            currentCategory = cat;
+                            ensureFirstLevelUnlocked(currentCategory);
+                            currentPage = "levels";
+                            render();
+                        }
+                    };
+                });
+            } else if(currentPage === "levels"){
+                let levels = getAllLevelsForCategory(currentCategory);
+                let groups = [];
+                if(BASIC_CATS.includes(currentCategory) || currentCategory.startsWith("Combo:")){
+                    groups = [
+                        { title: "🔢 Digit Combo (1x1 → 7x7)", levels: DIGIT_COMBOS },
+                        { title: "🧩 Multi-Set Fixed (1-digit to 5-digit)", levels: MULTI_FIXED },
+                        { title: "🔄 Multi-Set Mix (1-digit to 5-digit, random 3-7 terms)", levels: MULTI_MIX }
+                    ];
+                } else if(currentCategory === "Square" || currentCategory === "Cube"){
+                    groups = [{ title: currentCategory, levels: levels }];
+                } else if(currentCategory === "Square Root" || currentCategory === "Cube Root"){
+                    groups = [{ title: currentCategory, levels: levels }];
+                } else if(currentCategory === "Tables"){
+                    let small = levels.slice(0,20);
+                    let combined = levels.slice(20,30);
+                    let master = levels.slice(30);
+                    groups = [
+                        { title: "Small Blocks", levels: small },
+                        { title: "Combined", levels: combined },
+                        { title: "Master", levels: master }
+                    ];
+                }
+                let html = `<button class="back-btn" id="backHome">← Back</button>`;
+                for(let group of groups){
+                    html += `<div class="section-title">${group.title}</div><div class="grid-3col">`;
+                    for(let lvl of group.levels){
+                        let stats = getLevelStats(currentCategory, lvl);
+                        let unlocked = stats.unlocked;
+                        if(lvl === groups[0].levels[0] && !unlocked){
+                            stats.unlocked = true;
+                            unlocked = true;
+                            saveAll();
+                        }
+                        let displayText = `${lvl} (${stats.correct}✅, ${stats.total-stats.correct}❌)`;
+                        html += `<div class="level-btn ${!unlocked ? 'locked' : ''}" data-level="${lvl}">${displayText}</div>`;
+                    }
+                    html += `</div>`;
+                }
+                contentDiv.innerHTML = html;
+                document.getElementById("backHome").onclick = () => {
+                    currentPage = "home";
+                    render();
+                };
+                document.querySelectorAll("[data-level]").forEach(btn => {
+                    btn.onclick = () => {
+                        let lvl = btn.getAttribute("data-level");
+                        let stats = getLevelStats(currentCategory, lvl);
+                        if(stats.unlocked){
+                            startPractice(currentCategory, lvl);
+                        }
+                    };
+                });
+            } else if(currentPage === "quiz"){
+                renderQuiz();
+            }
+        }
+        
+        loadAll();
+        render();
+    })();
+</script>
+</body>
+</html>
